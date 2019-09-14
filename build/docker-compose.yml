@@ -1,0 +1,36 @@
+version: "3"
+services:
+  httpd:
+    build: "./httpd/"
+    #image: "symfonydocker.azurecr.io/symfonyhttpd"
+    container_name: "httpd"
+    user: "symfonyd:symfonyd"
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: 0
+    networks:
+      server:
+        ipv4_address: 172.18.1.2
+    ports:
+      - "8080:80"
+    volumes:
+      - ../app:/usr/local/apache2/htdocs/:z
+      - phpsocket:/var/run/php/
+  php:
+    build: "./php"
+    container_name: "php"
+    user: "symfonyd:symfonyd"
+    networks:
+      server:
+        ipv4_address: 172.18.1.3
+    volumes:
+      - ../app:/usr/local/apache2/htdocs/:z
+      - phpsocket:/var/run/php/
+networks:
+  server:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.18.1.0/24"
+volumes:
+  phpsocket:
+  locks:
